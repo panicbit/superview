@@ -39,12 +39,16 @@ pub fn reencode(config: Config) -> Result<(), Error> {
         };
 
         const OUT_TIME_MS: &str = "out_time_ms=";
-
-        // println!("ffmpeg out: {}", line);
-
         if line.starts_with(OUT_TIME_MS) {
             let progress = &line[OUT_TIME_MS.len()..];
             let progress = progress.parse::<f64>().unwrap_or(0.);
+
+            if progress.is_sign_negative() {
+                eprint!("\rEncoding progress: ?.??%");
+                io::stderr().flush().ok();
+                continue
+            }
+
             let progress = progress / (config.duration * 10_000.);
 
             eprint!("\rEncoding progress: {:.2}%", progress);

@@ -7,6 +7,11 @@ use std::fmt;
 use serde::de;
 use serde::Deserialize;
 
+#[cfg(target_os = "windows")]
+const FFPROBE_EXE: &str = "ffprobe.exe";
+#[cfg(not(target_os = "windows"))]
+const FFPROBE_EXE: &str = "ffprobe";
+
 #[derive(Debug, Snafu)]
 pub enum Error {
     #[snafu(display("Could not ffprobe: {}", source))]
@@ -26,7 +31,7 @@ pub enum Error {
 }
 
 pub fn probe(path: &Path) -> Result<Specs, Error> {
-    let output = Command::new("ffprobe")
+    let output = Command::new(FFPROBE_EXE)
         .arg("-i").arg(path)
         .args(&[
             "-v", "error",
@@ -39,7 +44,7 @@ pub fn probe(path: &Path) -> Result<Specs, Error> {
         .context(ProcessError)?;
 
     ensure!(output.status.success(), FfmpegError {
-        command: "ffprobe",
+        command: FFPROBE_EXE,
         status: output.status,
     });
     

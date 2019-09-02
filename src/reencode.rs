@@ -2,9 +2,10 @@ use std::process::{Command, ExitStatus, Stdio};
 use std::path::Path;
 use std::io::{self, BufReader, BufRead, Write};
 use snafu::ResultExt;
+use crate::FFMPEG_EXE;
 
 pub fn reencode(config: Config) -> Result<(), Error> {
-    let mut ffmpg = Command::new("ffmpeg")
+    let mut ffmpg = Command::new(FFMPEG_EXE)
         .args(&[
             "-hide_banner",
             "-progress", "pipe:1",

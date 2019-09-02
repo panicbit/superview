@@ -17,6 +17,11 @@ use reencode::reencode;
 mod filter;
 use filter::FilterConfig;
 
+#[cfg(target_os = "windows")]
+const FFMPEG_EXE: &str = "ffmpeg.exe";
+#[cfg(not(target_os = "windows"))]
+const FFMPEG_EXE: &str = "ffmpeg";
+
 pub type Result<T = (), E = Error> = std::result::Result<T, E>;
 
 #[derive(Debug, Snafu)]
@@ -94,7 +99,7 @@ pub fn superview(input: &Path, output: &Path, bitrate: Option<u32>) -> Result {
 }
 
 fn show_codec_support() -> Result {
-    let output = Command::new("ffmpeg").arg("-codecs").output()
+    let output = Command::new(FFMPEG_EXE).arg("-codecs").output()
         .context(GetCodecs)?;
     let stdout = String::from_utf8(output.stdout)
         .context(InvalidUtf8 { what: "codec list" })?;
